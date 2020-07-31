@@ -123,7 +123,7 @@ public class Time {
 	 *            (GPS time in seconds)
 	 * @return UNIX standard time in milliseconds
 	 */
-	private static long gpsToUnixTime(double time, int week) {
+	public static long gpsToUnixTime(double time, int week) {
 		// Shift from GPS time (January 6, 1980 - sec)
 		// to UNIX time (January 1, 1970 - msec)
 		time = (time + (week * Constants.DAYS_IN_WEEK + Constants.UNIX_GPS_DAYS_DIFF) * Constants.SEC_IN_DAY) * Constants.MILLISEC_IN_SEC;

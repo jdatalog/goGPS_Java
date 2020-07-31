@@ -121,7 +121,7 @@ public class UBXSerialReader implements Runnable,StreamEventProducer {
 		int nmeaAll[] = { UBXMessageType.NMEA_GGA, UBXMessageType.NMEA_GLL, UBXMessageType.NMEA_GSA, UBXMessageType.NMEA_GSV, UBXMessageType.NMEA_RMC, UBXMessageType.NMEA_VTG, UBXMessageType.NMEA_GRS,
 				UBXMessageType.NMEA_GST, UBXMessageType.NMEA_ZDA, UBXMessageType.NMEA_GBS, UBXMessageType.NMEA_DTM };
 		for (int i = 0; i < nmeaAll.length; i++) {
-			UBXMsgConfiguration msgcfg = new UBXMsgConfiguration(UBXMessageType.CLASS_NMEA, nmeaAll[i], false);
+			UBXMsgConfiguration msgcfg = new UBXMsgConfiguration(UBXMessageType.CLASS_UPD, nmeaAll[i], false);
 			out.write(msgcfg.getByte());
 			out.flush();
 		}
@@ -138,7 +138,7 @@ public class UBXSerialReader implements Runnable,StreamEventProducer {
 				}
 				for (int i = 0; i < nmeaRequested.length; i++) {
 					System.out.println(date1+" - "+COMPort+" - NMEA "+requestedNmeaMsgs.get(i)+" messages enabled");
-					UBXMsgConfiguration msgcfg = new UBXMsgConfiguration(UBXMessageType.CLASS_NMEA, nmeaRequested[i], true);
+					UBXMsgConfiguration msgcfg = new UBXMsgConfiguration(UBXMessageType.CLASS_UPD, nmeaRequested[i], true);
 					out.write(msgcfg.getByte());
 					out.flush();
 				}
@@ -148,7 +148,7 @@ public class UBXSerialReader implements Runnable,StreamEventProducer {
 
 		int pubx[] = { UBXMessageType.PUBX_A, UBXMessageType.PUBX_B, UBXMessageType.PUBX_C, UBXMessageType.PUBX_D };
 		for (int i = 0; i < pubx.length; i++) {
-			UBXMsgConfiguration msgcfg = new UBXMsgConfiguration(UBXMessageType.CLASS_PUBX, pubx[i], false);
+			UBXMsgConfiguration msgcfg = new UBXMsgConfiguration(UBXMessageType.CLASS_MON, pubx[i], false);
 			out.write(msgcfg.getByte());
 			out.flush();
 		}

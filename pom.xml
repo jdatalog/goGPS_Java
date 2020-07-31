@@ -12,6 +12,15 @@
 		<javaVersion>1.7</javaVersion>
 		<documentationURL />
 	</properties>
+<profiles>
+    <profile>
+        <id>ubx2gpx</id>
+        <properties>
+        <buid.profile.id>ubx2gpx</buid.profile.id>
+        
+        </properties>
+            </profile>
+</profiles>
 
 	<dependencies>
 		<dependency>
@@ -57,6 +66,11 @@
 		    <artifactId>JavaAPIforKml</artifactId>
 		    <version>2.2.1</version>
 		</dependency>
+	 <dependency>
+	  <groupId>commons-io</groupId>
+	  <artifactId>commons-io</artifactId>
+	  <version>2.4</version>
+	 </dependency>
 	</dependencies>
 
 	<build>
@@ -77,8 +91,8 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>${javaVersion}</source>
-					<target>${javaVersion}</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>ISO-8859-1</encoding>
 				</configuration>
 			</plugin>

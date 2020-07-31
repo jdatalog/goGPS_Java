@@ -40,182 +40,238 @@ import org.gogpsproject.producer.parser.IonoGps;
 
 /**
  * <p>
- * Read an UBX File and implement Observation and Navigation producer (if AID-HUI and AID-EPH has been recorded)
+ * Read an UBX File and implement Observation and Navigation producer (if
+ * AID-HUI and AID-EPH has been recorded)
  * </p>
  *
  * @author Lorenzo Patocchi cryms.com
  */
-
 public class UBXFileReader extends EphemerisSystem implements ObservationsProducer, NavigationProducer, StreamResource, StreamEventProducer {
 
-	private InputStream in;
-	private UBXReader reader;
-	private File file;
-	private Observations obs = null;
-	private IonoGps iono = null;
-	// TODO support past times, now keep only last broadcast data
-	private HashMap<Integer,EphGps> ephs = new HashMap<Integer,EphGps>();
-	
-	private Vector<StreamEventListener> streamEventListeners = new Vector<StreamEventListener>();
+    private InputStream in;
+    private UBXReader reader;
+    private File file;
+    private Observations obs = null;
+    private IonoGps iono = null;
+    // TODO support past times, now keep only last broadcast data
+    private HashMap<Integer, EphGps> ephs = new HashMap<Integer, EphGps>();
 
-	boolean gpsEnable = true;  // enable GPS data reading
-	boolean qzsEnable = true;  // enable QZSS data reading
+    private Vector<StreamEventListener> streamEventListeners = new Vector<StreamEventListener>();
+    private Vector<UBXStreamEventListener> ubxStreamEventListener = new Vector<UBXStreamEventListener>();
+
+    boolean gpsEnable = true;  // enable GPS data reading
+    boolean qzsEnable = true;  // enable QZSS data reading
     boolean gloEnable = true;  // enable GLONASS data reading	
     boolean galEnable = true;  // enable Galileo data reading
     boolean bdsEnable = true;  // enable BeiDou data reading
-	
-	Boolean[] multiConstellation = {gpsEnable, qzsEnable, gloEnable, galEnable, bdsEnable};
-	
-	public UBXFileReader(File file) {
-		this.file = file;
-	}
-	
-	public UBXFileReader(File file, Boolean[] multiConstellation) {
-		this.file = file;
-		this.multiConstellation = multiConstellation;		
-	}
 
-	/* (non-Javadoc)
+    Boolean[] multiConstellation = {gpsEnable, qzsEnable, gloEnable, galEnable, bdsEnable};
+
+    public UBXFileReader(File file) {
+        this.file = file;
+    }
+
+    public UBXFileReader(File file, Boolean[] multiConstellation) {
+        this.file = file;
+        this.multiConstellation = multiConstellation;
+    }
+
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.ObservationsProducer#getApproxPosition()
-	 */
-	@Override
-	public Coordinates getDefinedPosition() {
-		Coordinates coord = Coordinates.globalXYZInstance(0.0, 0.0, 0.0); //new Coordinates(new SimpleMatrix(3, 1));
-		coord.setXYZ(0.0, 0.0, 0.0 );
-		return coord;
-	}
+     */
+    @Override
+    public Coordinates getDefinedPosition() {
+        Coordinates coord = Coordinates.globalXYZInstance(0.0, 0.0, 0.0); //new Coordinates(new SimpleMatrix(3, 1));
+        coord.setXYZ(0.0, 0.0, 0.0);
+        return coord;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.ObservationsProducer#getCurrentObservations()
-	 */
-	@Override
-	public Observations getCurrentObservations() {
-		return obs;
-	}
+     */
+    @Override
+    public Observations getCurrentObservations() {
+        return obs;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.ObservationsProducer#hasMoreObservations()
-	 */
-	public boolean hasMoreObservations() {
-		boolean moreObs = false;
-		try {
-			moreObs = in.available()>0;
-		} catch (IOException e) {
-		}
-		return moreObs;
-	}
+     */
+    public boolean hasMoreObservations() {
+        boolean moreObs = false;
+        try {
+            moreObs = in.available() > 0;
+        } catch (IOException e) {
+        }
+        return moreObs;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.ObservationsProducer#init()
-	 */
-	@Override
-	public void init() throws Exception {
-		this.in = new FileInputStream(file);
-		this.reader = new UBXReader(in, multiConstellation, null);
-	}
+     */
+    @Override
+    public void init() throws Exception {
+        this.in = new FileInputStream(file);
+        this.reader = new UBXReader(in, multiConstellation, null);
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.ObservationsProducer#nextObservations()
-	 */
-	@Override
-	public Observations getNextObservations() {
-		try{
-			while(in.available()>0){
-				try{
-					int data = in.read();
-					if(data == 0xB5){
-						Object o = reader.readMessage();
-						if(o instanceof Observations){
-							return (Observations)o;
-						}else
-							if(o instanceof IonoGps){
-								iono = (IonoGps)o;
-							}
-						if(o instanceof EphGps){
+     */
+    @Override
+    public Observations getNextObservations() {
+        try {
+            while (in.available() > 0) {
+                try {
+                    int data = in.read();
+                    if (data == 0xB5) {
+                        Object o = reader.readMessage();
+                        if (o instanceof Observations) {
+                            return (Observations) o;
+                        } else if (o instanceof IonoGps) {
+                            iono = (IonoGps) o;
+                        }
+                        if (o instanceof EphGps) {
 
-							EphGps e = (EphGps)o;
-							ephs.put(new Integer(e.getSatID()), e);
-						}
-					}else if(data == 0x24){
-						//System.out.println("NMEA detected");
-						//no warning, may be NMEA
-						//System.out.println("Wrong Sync char 1 "+data+" "+Integer.toHexString(data)+" ["+((char)data)+"]");
-					}
-				}catch(UBXException ubxe){
-					System.err.println(ubxe);
-					//					ubxe.printStackTrace();
-				}
-			}
-		}catch(IOException e){
-			e.printStackTrace();
-		}
-		return null;
-	}
+                            EphGps e = (EphGps) o;
+                            ephs.put(new Integer(e.getSatID()), e);
+                        }
+                    } else if (data == 0x24) {
+                        //System.out.println("NMEA detected");
+                        //no warning, may be NMEA
+                        //System.out.println("Wrong Sync char 1 "+data+" "+Integer.toHexString(data)+" ["+((char)data)+"]");
+                    }
+                } catch (UBXException ubxe) {
+                    System.err.println(ubxe);
+                    //					ubxe.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.ObservationsProducer#release()
-	 */
-	@Override
-	public void release(boolean waitForThread, long timeoutMs) throws InterruptedException {
-		try {
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+     */
+    @Override
+    public void release(boolean waitForThread, long timeoutMs) throws InterruptedException {
+        try {
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.NavigationProducer#getGpsSatPosition(long, int, double)
-	 */
-	@Override
-	public SatellitePosition getGpsSatPosition(Observations obs, int satID, char satType, double receiverClockError) {
-		EphGps eph = ephs.get(new Integer(satID));
-		if (eph != null) {
+     */
+    @Override
+    public SatellitePosition getGpsSatPosition(Observations obs, int satID, char satType, double receiverClockError) {
+        EphGps eph = ephs.get(new Integer(satID));
+        if (eph != null) {
 //			char satType = eph.getSatType();
-			SatellitePosition sp = computePositionGps(obs, satID, satType, eph, receiverClockError);
-			return sp;
-		}
-		return null ;
-	}
+            SatellitePosition sp = computePositionGps(obs, satID, satType, eph, receiverClockError);
+            return sp;
+        }
+        return null;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.NavigationProducer#getIono(long)
-	 */
-	@Override
-	public IonoGps getIono(long unixTime) {
-		return iono;
-	}
+     */
+    @Override
+    public IonoGps getIono(long unixTime) {
+        return iono;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.StreamEventProducer#addStreamEventListener(org.gogpsproject.StreamEventListener)
-	 */
-	@Override
-	public void addStreamEventListener(StreamEventListener streamEventListener) {
-		if(streamEventListener==null) return;
-		if(!streamEventListeners.contains(streamEventListener))
-			this.streamEventListeners.add(streamEventListener);
-		if(this.reader!=null)
-			this.reader.addStreamEventListener(streamEventListener);
-	}
+     */
+    @Override
+    public void addStreamEventListener(StreamEventListener streamEventListener) {
+        if (streamEventListener == null) {
+            return;
+        }
+        if (!streamEventListeners.contains(streamEventListener)) {
+            this.streamEventListeners.add(streamEventListener);
+        }
+        if (this.reader != null) {
+            this.reader.addStreamEventListener(streamEventListener);
+        }
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.StreamEventProducer#getStreamEventListeners()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Vector<StreamEventListener> getStreamEventListeners() {
-		return (Vector<StreamEventListener>) streamEventListeners.clone();
-	}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Vector<StreamEventListener> getStreamEventListeners() {
+        return (Vector<StreamEventListener>) streamEventListeners.clone();
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.gogpsproject.StreamEventProducer#removeStreamEventListener(org.gogpsproject.StreamEventListener)
-	 */
-	@Override
-	public void removeStreamEventListener(
-			StreamEventListener streamEventListener) {
-		if(streamEventListener==null) return;
-		if(streamEventListeners.contains(streamEventListener))
-			this.streamEventListeners.remove(streamEventListener);
-		this.reader.removeStreamEventListener(streamEventListener);
-	}
+     */
+    @Override
+    public void removeStreamEventListener(
+            StreamEventListener streamEventListener) {
+        if (streamEventListener == null) {
+            return;
+        }
+        if (streamEventListeners.contains(streamEventListener)) {
+            this.streamEventListeners.remove(streamEventListener);
+        }
+        this.reader.removeStreamEventListener(streamEventListener);
+    }
+
+    public void addUBXStreamEventListener(UBXStreamEventListener streamEventListener) {
+        if (streamEventListener == null) {
+            return;
+        }
+        if (!streamEventListeners.contains(streamEventListener)) {
+            this.ubxStreamEventListener.add(streamEventListener);
+        }
+        if (this.reader != null) {
+            this.reader.addUbxStreamEventListener(streamEventListener);
+        }
+    }
+
+    public Vector< UBXStreamEventListener> getUbxStreamEventListeners() {
+        return (Vector< UBXStreamEventListener>) ubxStreamEventListener.clone();
+    }
+
+    public void removeUbxStreamEventListener(
+            UBXStreamEventListener streamEventListener) {
+        if (streamEventListener == null) {
+            return;
+        }
+        if (streamEventListeners.contains(streamEventListener)) {
+            this.streamEventListeners.remove(streamEventListener);
+        }
+        this.reader.removeUbxStreamEventListener(streamEventListener);
+    }
+
+    public void readFile() {
+        try {
+            while (in.available() > 0) {
+                try {
+                    int data = in.read();
+                    if (data == 0xB5) {
+                        Object o = reader.readMessage();
+                    } else if (data == 0x24) {
+                        //System.out.println("NMEA detected");
+                        //no warning, may be NMEA
+                        //System.out.println("Wrong Sync char 1 "+data+" "+Integer.toHexString(data)+" ["+((char)data)+"]");
+                    }
+                } catch (UBXException ubxe) {
+                    System.err.println(ubxe);
+                    //					ubxe.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
