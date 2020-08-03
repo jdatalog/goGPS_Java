@@ -31,6 +31,7 @@ public class DecodeNAVPOSLLH {
         int height = EndianUtils.readSwappedInteger(in);  // 12 I4 height mm Height above ellipsoid
         int hMSL = EndianUtils.readSwappedInteger(in);    // 16 I4 hMSL   mm Height above mean sea level
         int hAcc = EndianUtils.readSwappedInteger(in);
+        int vAcc = EndianUtils.readSwappedInteger(in);
         // System.out.println("[" + iTOW + "]" + (lon * 1e-7) + "/" + (lat * 1e-7) + "/" + ((1.0 * height) / 1000.0));
         return new UBXPosition(iTOW, lon, lat, height, hMSL, hAcc);
     }

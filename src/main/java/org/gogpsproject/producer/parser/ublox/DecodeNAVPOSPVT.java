@@ -22,7 +22,7 @@ public class DecodeNAVPOSPVT {
         this.in = in;
     }
 
-    public void decode(OutputStream logos) throws IOException, UBXException {
+    public UBXNavigationStatus decode(OutputStream logos) throws IOException, UBXException {
          int len = EndianUtils.readSwappedShort(in);
 
          long iTOW = EndianUtils.readSwappedUnsignedInteger(in);    //  0 U4 iTOW    ms GPS time of week of the navigation epoch. See the description of iTOW for details.
@@ -60,7 +60,18 @@ public class DecodeNAVPOSPVT {
         int magDec = EndianUtils.readSwappedShort(in);
         int magAcc = EndianUtils.readSwappedUnsignedShort(in);	
         
+// GNSSfix Type:
+//   0: no fix
+//   1: dead reckoning only
+//   2: 2D-fix
+//   3: 3D-fix
+//   4: GNSS + dead reckoning combined
+//   5: time only fix
+
+
+
          System.out.println("NAVPOSPVT -[" + year + "/"+month+"/"+day + " "+hour+ " "+min+" "+sec+" ]" + (lon * 1e-7) + "/" + (lat * 1e-7) + "/" + ((1.0 * height) / 1000.0));
-        return;
+        return new UBXNavigationStatus(  iTOW,   fixType,   flags,   0,   flags2,   0,   0);
     }
+     
 }

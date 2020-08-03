@@ -57,7 +57,7 @@ public class UBXToGpx {
 		//rp.setFilename("rover_20190728074446.gpx");
 		//rp.setFilename("rover_20190728093730.gpx");
 		//rp.setFilename("rover_20190728123142.gpx");
-		rp.setFilename("rover_20200311103620.gpx");
+		rp.setFilename("GPS-2020-08-03.gpx");
 
 		UBXFileReader roverIn = new UBXFileReader(new File(inFile));
 		try {

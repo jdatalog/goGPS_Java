@@ -191,6 +191,7 @@ public class UBXReader implements StreamEventProducer {
 
     public Object readMessage() throws IOException, UBXException {
 
+        UBXNavigationStatus s = null;
         //	int data = in.read();
         //	if(data == 0xB5){
         int classID = 0;
@@ -218,10 +219,9 @@ public class UBXReader implements StreamEventProducer {
                             }
                             return p;
                         case UBXMessageTypeV2301.ID_NAV_STATUS:
-                            UBXNavigationStatus s = null;
                             DecodeNAVSTATUS decodeNavigationStatus = new DecodeNAVSTATUS(in);
                             s = decodeNavigationStatus.decode(null);
-                              if (ubxStreamEventListener != null && s != null) {
+                            if (ubxStreamEventListener != null && s != null) {
                                 for (UBXStreamEventListener sel : ubxStreamEventListener) {
                                     sel.addUBXNavigationStatus(s);
                                 }
@@ -231,7 +231,7 @@ public class UBXReader implements StreamEventProducer {
                             UBXDop d = null;
                             DecodeNAVPOSDOP decodeNavDop = new DecodeNAVPOSDOP(in);
                             d = decodeNavDop.decode(null);
-                              if (ubxStreamEventListener != null && d != null) {
+                            if (ubxStreamEventListener != null && d != null) {
                                 for (UBXStreamEventListener sel : ubxStreamEventListener) {
                                     sel.addUBXDop(d);
                                 }
@@ -239,12 +239,12 @@ public class UBXReader implements StreamEventProducer {
                             return d;
                         case UBXMessageTypeV2301.ID_NAV_PVT:
                             DecodeNAVPOSPVT decodeNavPVT = new DecodeNAVPOSPVT(in);
-                            decodeNavPVT.decode(null);
-                              //if (ubxStreamEventListener != null && d != null) {
-                              //  for (UBXStreamEventListener sel : ubxStreamEventListener) {
-                              //      sel.addUBXDop(d);
-                              //  }
-                            //}
+                            s = decodeNavPVT.decode(null);
+                            if (ubxStreamEventListener != null && s != null) {
+                                for (UBXStreamEventListener sel : ubxStreamEventListener) {
+                                    sel.addUBXNavigationStatus(s);
+                                }
+                            }
                             return null;
                         default:
                             length[1] = in.read();
