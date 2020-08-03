@@ -32,7 +32,7 @@ public class DecodeNAVPOSLLH {
         int hMSL = EndianUtils.readSwappedInteger(in);    // 16 I4 hMSL   mm Height above mean sea level
         int hAcc = EndianUtils.readSwappedInteger(in);
         int vAcc = EndianUtils.readSwappedInteger(in);
-        // System.out.println("[" + iTOW + "]" + (lon * 1e-7) + "/" + (lat * 1e-7) + "/" + ((1.0 * height) / 1000.0));
+        System.out.println("[" + iTOW + "]" + (lon * 1e-7) + "/" + (lat * 1e-7) + "/" + ((1.0 * height) / 1000.0)+" - ["+hAcc+ "/"+vAcc+"]");
         return new UBXPosition(iTOW, lon, lat, height, hMSL, hAcc);
     }
 }

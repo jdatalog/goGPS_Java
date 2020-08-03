@@ -5,10 +5,10 @@
  */
 package org.gogpsproject.producer.gpx;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -17,10 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 import org.gogpsproject.positioning.Time;
 import org.gogpsproject.producer.parser.ublox.UBXDop;
 import org.gogpsproject.producer.parser.ublox.UBXMessageTypeV14;
@@ -70,7 +67,7 @@ public class GpxProducer implements UBXStreamEventListener {
     public void setFilename(String outFilename) {
         this.outFilename = outFilename;
         try {
-            fos = new FileOutputStream(this.outputDir + "/" + outFilename, false);
+            fos = new FileOutputStream(this.outputDir + File.separator + outFilename, false);
             ps = new PrintStream(fos);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

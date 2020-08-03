@@ -35,10 +35,10 @@ public class DecodeNAVSTATUS {
         int flags2 = in.read();
         long ttff = EndianUtils.readSwappedUnsignedInteger(in);
         long msss = EndianUtils.readSwappedUnsignedInteger(in);
-        // System.out.println( "["+iTOW+"]" +String.format("%8s", Integer.toBinaryString(gpsFix)).replaceAll(" ", "0")
-        //                                 +"|"+String.format("%8s",Integer.toBinaryString( flags)).replaceAll(" ", "0")
-        //                                 +"|"+String.format("%8s",Integer.toBinaryString(fixStat)).replaceAll(" ", "0")
-        //                                 +"|"+String.format("%8s",Integer.toBinaryString(flags2)).replaceAll(" ", "0"));
+         System.out.println( "["+iTOW+"][STATUS]" +String.format("%8s", Integer.toBinaryString(gpsFix)).replaceAll(" ", "0")
+                                         +"|"+String.format("%8s",Integer.toBinaryString( flags)).replaceAll(" ", "0")
+                                         +"|"+String.format("%8s",Integer.toBinaryString(fixStat)).replaceAll(" ", "0")
+                                         +"|"+String.format("%8s",Integer.toBinaryString(flags2)).replaceAll(" ", "0"));
         return new UBXNavigationStatus(  iTOW,   gpsFix,   flags,   fixStat,   flags2,   ttff,   msss);
     }
 

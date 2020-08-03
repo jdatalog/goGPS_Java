@@ -41,7 +41,7 @@ public class UBXReader implements StreamEventProducer {
     private InputStream in;
     private Vector<StreamEventListener> streamEventListeners = new Vector<StreamEventListener>();
     private Vector<UBXStreamEventListener> ubxStreamEventListener = new Vector<UBXStreamEventListener>();
-    private Boolean debugModeEnabled = true;
+    private Boolean debugModeEnabled = false;
     //	private StreamEventListener streamEventListener;
 
     boolean gpsEnable = true;  // enable GPS data reading
