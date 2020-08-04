@@ -137,9 +137,20 @@ public class UBXFileReader extends EphemerisSystem implements ObservationsProduc
                             ephs.put(new Integer(e.getSatID()), e);
                         }
                     } else if (data == 0x24) {
-                        //System.out.println("NMEA detected");
-                        //no warning, may be NMEA
-                        //System.out.println("Wrong Sync char 1 "+data+" "+Integer.toHexString(data)+" ["+((char)data)+"]");
+                        // NMEA ?
+                        data = in.read();
+                        System.out.print("$");
+                        if ((data >= (int)'A') && (data <= (int)'Z')) {
+                            do {
+                                if (data != (int)'\r') {
+                                    System.out.print((char) data);
+                                }
+                                data = in.read();
+                            } while (data != (int)'\n');
+                            System.out.print("\n");
+                        } else {
+                            // go back ?
+                        }
                     }
                 } catch (UBXException ubxe) {
                     System.err.println(ubxe);

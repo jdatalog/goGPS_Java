@@ -254,7 +254,7 @@ public class UBXReader implements StreamEventProducer {
                                 in.read();
                             }
                             if (this.debugModeEnabled) {
-                                System.out.println("CLASS_NAV Not yeat parsed : " + Integer.toHexString(classID));
+                               // System.out.println("CLASS_NAV Not yeat parsed : " + Integer.toHexString(classID));
                             }
                             return null;
                     }
@@ -266,7 +266,7 @@ public class UBXReader implements StreamEventProducer {
 
                             o = decodegnss.decode(null);
                             if (o != null && this.debugModeEnabled) {
-                                System.out.println("Decoded observations");
+                              //  System.out.println("Decoded observations");
                             }
                             if (streamEventListeners != null && o != null) {
                                 for (StreamEventListener sel : streamEventListeners) {
@@ -281,7 +281,7 @@ public class UBXReader implements StreamEventProducer {
 
                             o = decodegps.decode(null);
                             if (o != null && this.debugModeEnabled) {
-                                System.out.println("Decoded observations");
+                             //   System.out.println("Decoded observations");
                             }
                             if (streamEventListeners != null && o != null) {
                                 for (StreamEventListener sel : streamEventListeners) {
@@ -293,13 +293,13 @@ public class UBXReader implements StreamEventProducer {
                         case UBXMessageTypeV2301.ID_RXM_SFRBX:
                             dummyDecode(msgClass, classID);
                             if (this.debugModeEnabled) {
-                                System.out.println("CLASS_RXM ID_RXM_SFRBX Not yeat parsed");
+                             //   System.out.println("CLASS_RXM ID_RXM_SFRBX Not yeat parsed");
                             }
                             return null;
                         default:
                             dummyDecode(msgClass, classID);
                             if (this.debugModeEnabled) {
-                                System.out.println("CLASS_RXM : " + Integer.toHexString(classID));
+                             //   System.out.println("CLASS_RXM : " + Integer.toHexString(classID));
                             }
                             return null;
                     }
@@ -351,6 +351,9 @@ public class UBXReader implements StreamEventProducer {
             }
 
         } else if (this.debugModeEnabled) {
+            if ((char) classID == '$') {
+                int nmea = 1;
+            }
             System.out.println("Warning: wrong sync char 2 " + classID + " 0x" + Integer.toHexString(classID) + " [" + ((char) classID) + "]");
         }
 
